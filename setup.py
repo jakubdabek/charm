@@ -103,13 +103,27 @@ cryptobase_path = crypto_path + "cryptobase/"
 core_prefix = 'charm.core'
 math_prefix = core_prefix + '.math'
 crypto_prefix = core_prefix + '.crypto'
+
+_macros = []
+_undef_macros = []
+
 #default is no unless benchmark module explicitly disabled
 if opt.get('DISABLE_BENCHMARK') == 'yes':
-   _macros = None
-   _undef_macro = ['BENCHMARK_ENABLED']
+   _undef_macros.append('BENCHMARK_ENABLED')
 else:
-   _macros = [('BENCHMARK_ENABLED', '1')]
-   _undef_macro = None
+   _macros.append(('BENCHMARK_ENABLED', '1'))
+
+def parse_macro_opt(opt):
+    if opt.startswith("-D"):
+        split = opt[2:].split('=')
+        name = split[0]
+        value = split[1] if len(split) >= 2 else None
+        return name, value
+    else:
+        return None
+
+parsed_macro_opts = map(parse_macro_opt, opt.get("CPPFLAGS").split())
+_macros.extend(m for m in parsed_macro_opts if m is not None)
 
 # base module config
 if opt.get('USE_PBC') == 'yes':
@@ -119,26 +133,17 @@ elif opt.get('USE_RELIC') == 'yes':
    relic_inc = "/usr/local/include/relic"
 elif opt.get('USE_MIRACL') == 'yes' and opt.get('MIRACL_MNT') == 'yes': 
     mnt_opt = [('BUILD_MNT_CURVE', '1'), ('BUILD_BN_CURVE', '0'), ('BUILD_SS_CURVE', '0')]
-    if _macros: 
-       _macros.extend( mnt_opt )
-    else: 
-      _macros = mnt_opt
+    _macros.extend( mnt_opt )
     miracl_lib = "/usr/local/lib/miracl-mnt.a"
     miracl_inc = "/usr/local/include/miracl"
 elif opt.get('USE_MIRACL') == 'yes' and opt.get('MIRACL_BN') == 'yes':
     bn_opt = [('BUILD_MNT_CURVE', '0'), ('BUILD_BN_CURVE', '1'), ('BUILD_SS_CURVE', '0')]
-    if _macros: 
-       _macros.extend( bn_opt )
-    else: 
-       _macros = bn_opt 
+    _macros.extend( bn_opt )
     miracl_lib = "/usr/local/lib/miracl-bn.a"
     miracl_inc = "/usr/local/include/miracl"
 elif opt.get('USE_MIRACL') == 'yes' and opt.get('MIRACL_SS') == 'yes':
     ss_opt = [('BUILD_MNT_CURVE', '0'), ('BUILD_BN_CURVE', '0'), ('BUILD_SS_CURVE', '1')]
-    if _macros: 
-       _macros.extend( ss_opt )
-    else: 
-       _macros = ss_opt 
+    _macros.extend( ss_opt )
     miracl_lib = "/usr/local/lib/miracl-ss.a"
     miracl_inc = "/usr/local/include/miracl"
 else:
@@ -158,7 +163,7 @@ if opt.get('PAIR_MOD') == 'yes':
                                             benchmark_path] + inc_dirs,
                             sources = [math_path+'pairing/pairingmodule.c', 
                                         utils_path+'base64.c'],
-                            libraries=['pbc', 'gmp', 'crypto'], define_macros=_macros, undef_macros=_undef_macro,
+                            libraries=['pbc', 'gmp', 'crypto'], define_macros=_macros, undef_macros=_undef_macros,
                             library_dirs=library_dirs, runtime_library_dirs=runtime_library_dirs)
 
     elif opt.get('USE_RELIC') == 'yes':
@@ -173,7 +178,7 @@ if opt.get('PAIR_MOD') == 'yes':
                             sources = [math_path + 'pairing/relic/pairingmodule3.c',
                                         math_path + 'pairing/relic/relic_interface.c',
                                         utils_path + 'base64.c'],
-                            libraries=['relic', 'gmp', 'crypto'], define_macros=_macros, undef_macros=_undef_macro,
+                            libraries=['relic', 'gmp', 'crypto'], define_macros=_macros, undef_macros=_undef_macros,
                             library_dirs=library_dirs, runtime_library_dirs=runtime_library_dirs)
                             #extra_objects=[relic_lib], extra_compile_args=None)
 
@@ -188,7 +193,7 @@ if opt.get('PAIR_MOD') == 'yes':
                                             benchmark_path, miracl_inc],
                             sources = [math_path + 'pairing/miracl/pairingmodule2.c',
                                         math_path + 'pairing/miracl/miracl_interface2.cc'],
-                            libraries=['gmp', 'crypto', 'stdc++'], define_macros=_macros, undef_macros=_undef_macro,
+                            libraries=['gmp', 'crypto', 'stdc++'], define_macros=_macros, undef_macros=_undef_macros,
                             extra_objects=[miracl_lib], extra_compile_args=None,
                             library_dirs=library_dirs, runtime_library_dirs=runtime_library_dirs)
 
@@ -201,7 +206,7 @@ if opt.get('INT_MOD') == 'yes':
                                             benchmark_path] + inc_dirs,
                             sources = [math_path + 'integer/integermodule.c', 
                                         utils_path + 'base64.c'], 
-                            libraries=['gmp', 'crypto'], define_macros=_macros, undef_macros=_undef_macro,
+                            libraries=['gmp', 'crypto'], define_macros=_macros, undef_macros=_undef_macros,
                             library_dirs=library_dirs, runtime_library_dirs=runtime_library_dirs)
    _ext_modules.append(integer_module)
    
@@ -212,7 +217,7 @@ if opt.get('ECC_MOD') == 'yes':
                                 benchmark_path] + inc_dirs,
 				sources = [math_path + 'elliptic_curve/ecmodule.c',
                             utils_path + 'base64.c'], 
-				libraries=['gmp', 'crypto'], define_macros=_macros, undef_macros=_undef_macro,
+				libraries=['gmp', 'crypto'], define_macros=_macros, undef_macros=_undef_macros,
                 library_dirs=library_dirs, runtime_library_dirs=runtime_library_dirs)
    _ext_modules.append(ecc_module)
 
