@@ -32,7 +32,7 @@ all: setup
 .PHONY: deps
 deps:
 	@echo "Building the dependency libs"
-	make -C deps
+	$(MAKE) -C deps
 
 .PHONY: source
 source:

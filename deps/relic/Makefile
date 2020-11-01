@@ -7,7 +7,7 @@ BN_254_CURVE=bn254
 BN_256_CURVE=bn256
 SS_1536_CURVE=ss1536
 
-all: get_relic relic-$(VERSION)/.built
+all: relic-$(VERSION).tar.gz relic-$(VERSION)/.built
 
 relic-$(VERSION)/.built: relic-${VERSION}
 	./build_configs.py --src $< -p $(prefix) -c bn -s 254 -t; \
@@ -28,7 +28,7 @@ relic-$(VERSION)/.built: relic-${VERSION}
 relic-$(VERSION): relic-$(VERSION).tar.gz
 	tar xf $^
 
-get_relic:
+relic-$(VERSION).tar.gz:
 	./get_relic_source.sh
 
 clean:

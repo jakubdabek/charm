@@ -1,16 +1,18 @@
 include ../config.mk
 
-.PHONY: all clean
-
 # relic openssl pbc
-DIRS=relic pbc
-all: $(DIRS)
-	for d in $(DIRS); do \
-		make -C $$d; \
-	done
+DIRS:=relic pbc
+CLEAN_DIRS:=$(addsuffix _clean,$(DIRS))
 
-clean: $(DIRS)
+.PHONY: all clean $(DIRS) $(CLEAN_DIRS)
+
+all: $(DIRS)
+
+$(DIRS):
+	$(MAKE) -C $@
+
+clean: $(CLEAN_DIRS)
 	rm -rf root
-	for d in $(DIRS); do \
-		make -C $$d clean; \
-	done
+
+$(CLEAN_DIRS):
+	$(MAKE) -C $(patsubst %_clean,%,$@) clean
