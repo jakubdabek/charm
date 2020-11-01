@@ -68,7 +68,7 @@ def read_config(file):
     config_key = {}
     for e in lines:
         if e.find('=') != -1:
-           param = e.split('=')
+           param = e.split('=', maxsplit=1)
            config_key[ param[0] ] = param[1] 
     f.close()
     return config_key
