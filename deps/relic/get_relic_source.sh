@@ -12,21 +12,21 @@ fi
 
 echo "Clone github repo @ ${LINK}"
 if [ -d "${RELIC}-${GIT_VERSION}.git" ]; then
-    cd ${RELIC}-${GIT_VERSION}.git
+    cd "${RELIC}-${GIT_VERSION}.git"
     git pull
 else
-    git clone ${LINK} ${RELIC}-${GIT_VERSION}.git
-    cd ${RELIC}-${GIT_VERSION}.git
+    git clone "${LINK}" "${RELIC}-${GIT_VERSION}.git"
+    cd "${RELIC}-${GIT_VERSION}.git"
 fi
 
 echo "Create archive of source (without git files)"
-git archive --format ${FORMAT} --output ../${RELIC}-${VERSION}.test.${FORMAT} HEAD
+git archive --format "${FORMAT}" --output "../${RELIC}-${VERSION}.test.${FORMAT}" HEAD
 
 echo "Create final tarball: ${RELIC}-${VERSION}.${FORMAT}"
 cd ..
-mkdir ${RELIC}-${VERSION}
-cd ${RELIC}-${VERSION}
-tar -xf ../${RELIC}-${VERSION}.test.${FORMAT}
+mkdir "${RELIC}-${VERSION}"
+cd "${RELIC}-${VERSION}"
+tar -xf "../${RELIC}-${VERSION}.test.${FORMAT}"
 
 echo "Fix symbols..."
 grep -rl "BN_BITS" ./ | xargs sed -i 's/BN_BITS/RLC_BN_BITS/g'
@@ -40,6 +40,6 @@ grep -rl "rsa_st" ./ | xargs sed -i 's/rsa_st/rlc_rsa_st/g'
 sed -i -e '/^#define ep2_mul /d' include/relic_label.h
 
 cd ..
-tar -czf ${RELIC}-${VERSION}.tar.gz ${RELIC}-${VERSION}
-rm ${RELIC}-${VERSION}.test.${FORMAT}
-rm -r ${RELIC}-${VERSION}
+tar -czf "${RELIC}-${VERSION}.tar.gz" "${RELIC}-${VERSION}"
+rm "${RELIC}-${VERSION}.test.${FORMAT}"
+rm -r "${RELIC}-${VERSION}"

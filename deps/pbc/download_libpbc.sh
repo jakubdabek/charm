@@ -2,9 +2,9 @@
 
 REPO=https://crypto.stanford.edu/pbc/files
 PBC=pbc
-VERSION=$1
+VERSION="$1"
 
-if [ ${VERSION} = "" ]; then
+if [ -z "$VERSION" ]; then
     echo "Missing ${PBC} version to download."
     exit 1
 fi
@@ -14,5 +14,5 @@ if [ -f "${PBC}-${VERSION}.tar.gz" ]; then
     exit 0
 fi
 
-wget ${REPO}/${PBC}-${VERSION}.tar.gz
+wget "${REPO}/${PBC}-${VERSION}.tar.gz"
 exit 0
